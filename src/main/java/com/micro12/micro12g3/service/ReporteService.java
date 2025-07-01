@@ -17,6 +17,7 @@ public class ReporteService {
 
     private List<InventarioDTO> inventario = new ArrayList<>();
     private List<VentasDTO> ventas = new ArrayList<>();
+    private List<RendimientoDTO> rendimientos = new ArrayList<>();
 
     public Reporte generarReporte(Reporte reporte) {
         return reporteRepository.save(reporte);
@@ -66,6 +67,21 @@ public class ReporteService {
         return resultado;
     }
 
+    public RendimientoDTO agregarRendimiento(RendimientoDTO rendimiento) {
+        rendimientos.add(rendimiento);
+        return rendimiento;
+    }
+
+    public List<RendimientoDTO> getRendimientoPorTienda(int idTienda) {
+        List<RendimientoDTO> resultado = new ArrayList<>();
+        for (RendimientoDTO rendimiento : rendimientos) {
+            if (rendimiento.getIdTienda() == idTienda) {
+                resultado.add(rendimiento);
+            }
+        }
+        return resultado;
+    }
+
     public Object generarReportePorTipo(Reporte reporte) {
         int idTienda = reporte.getIdTienda();
         TipoReporte tipo = reporte.getExportar();
@@ -78,6 +94,11 @@ public class ReporteService {
         if (tipo == TipoReporte.VENTAS) {
             List<VentasDTO> ven = getVentasPorTienda(idTienda);
             return new ReporteVentasDTO(reporte, ven);
+        }
+
+        if (tipo == TipoReporte.RENDIMIENTO) {
+            List<RendimientoDTO> ren = getRendimientoPorTienda(idTienda);
+            return new ReporteRendimientoDTO(reporte, ren);
         }
 
         return null;

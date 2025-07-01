@@ -5,8 +5,10 @@ import com.micro12.micro12g3.model.TipoReporte;
 import com.micro12.micro12g3.repository.ReporteRepository;
 import com.micro12.micro12g3.model.InventarioDTO;
 import com.micro12.micro12g3.model.VentasDTO;
+import com.micro12.micro12g3.model.RendimientoDTO;
 import com.micro12.micro12g3.model.ReporteInventarioDTO;
 import com.micro12.micro12g3.model.ReporteVentasDTO;
+import com.micro12.micro12g3.model.ReporteRendimientoDTO;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -92,8 +95,16 @@ class ReporteServiceTest {
     }
 
     @Test
+    void testAgregarYObtenerRendimiento() {
+        RendimientoDTO rendimiento = new RendimientoDTO(1, 75);
+        reporteService.agregarRendimiento(rendimiento);
+
+        List<RendimientoDTO> resultado = reporteService.getRendimientoPorTienda(1);
+        assertThat(resultado).contains(rendimiento);
+    }
+
+    @Test
     void testGenerarReportePorTipoInventario() {
-        // Preparar
         Reporte reporte = new Reporte(1, 100, "tipo", "formato", TipoReporte.INVENTARIO);
         InventarioDTO item = new InventarioDTO(100, "Producto A", 500);
         reporteService.agregarInventario(item);
@@ -113,10 +124,45 @@ class ReporteServiceTest {
     }
 
     @Test
-    void testGenerarReportePorTipoNull() {
-        Reporte reporte = new Reporte(1, 1, "tipo", "formato", TipoReporte.RENDIMIENTO);
+    void testGenerarReportePorTipoRendimiento() {
+        Reporte reporte = new Reporte(1, 1, "rendimiento", "pdf", TipoReporte.RENDIMIENTO);
+        RendimientoDTO rendimiento = new RendimientoDTO(1, 100);
+        reporteService.agregarRendimiento(rendimiento);
 
         Object resultado = reporteService.generarReportePorTipo(reporte);
-        assertThat(resultado).isNull();
+        assertThat(resultado).isInstanceOf(ReporteRendimientoDTO.class);
+    }
+
+    @Test
+    void testGetInventarioPorTiendaFiltrado() {
+        InventarioDTO item1 = new InventarioDTO(1, "Producto A", 1000);
+        InventarioDTO item2 = new InventarioDTO(2, "Producto B", 500);
+        reporteService.agregarInventario(item1);
+        reporteService.agregarInventario(item2);
+
+        List<InventarioDTO> resultado = reporteService.getInventarioPorTienda(1);
+        assertThat(resultado).containsExactly(item1);
+    }
+
+    @Test
+    void testGetVentasPorTiendaFiltrado() {
+        VentasDTO venta1 = new VentasDTO(1, "Producto A", 20);
+        VentasDTO venta2 = new VentasDTO(2, "Producto B", 10);
+        reporteService.agregarVenta(venta1);
+        reporteService.agregarVenta(venta2);
+
+        List<VentasDTO> resultado = reporteService.getVentasPorTienda(1);
+        assertThat(resultado).containsExactly(venta1);
+    }
+
+    @Test
+    void testGetRendimientoPorTiendaFiltrado() {
+        RendimientoDTO ren1 = new RendimientoDTO(1, 100);
+        RendimientoDTO ren2 = new RendimientoDTO(2, 70);
+        reporteService.agregarRendimiento(ren1);
+        reporteService.agregarRendimiento(ren2);
+
+        List<RendimientoDTO> resultado = reporteService.getRendimientoPorTienda(1);
+        assertThat(resultado).containsExactly(ren1);
     }
 }
