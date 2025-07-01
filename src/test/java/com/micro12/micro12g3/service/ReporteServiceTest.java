@@ -77,6 +77,15 @@ class ReporteServiceTest {
     }
 
     @Test
+    void testActualizarFormatoNoExiste() {
+        when(reporteRepository.findById(5)).thenReturn(Optional.empty());
+
+        Reporte resultado = reporteService.actualizarFormato(5, "excel");
+        assertThat(resultado).isNull();
+}
+
+
+    @Test
     void testAgregarYObtenerInventario() {
         InventarioDTO item = new InventarioDTO(1, "Producto A", 1000);
         reporteService.agregarInventario(item);
